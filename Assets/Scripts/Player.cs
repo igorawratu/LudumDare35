@@ -9,6 +9,7 @@ public class Player : MonoBehaviour {
     public int max_sides;
     public float move_speed;
     public float rot_speed;
+    public float shrink_rate;
 
     private int num_sides;
     private List<GameObject> side_sprites;
@@ -51,6 +52,7 @@ public class Player : MonoBehaviour {
             hor_factor++;
         }
 
+        //for testing purposes only----
         if (Input.GetKeyDown(KeyCode.G))
         {
             grow();
@@ -59,9 +61,11 @@ public class Player : MonoBehaviour {
         {
             shrink();
         }
+        //until here
 
         Rigidbody2D rb = gameObject.GetComponent<Rigidbody2D>();
         Vector2 vel = new Vector2((float)hor_factor * move_speed, (float)vert_factor * move_speed);
+        rb.angularVelocity = 0f;
 
         if(vel != Vector2.zero)
         {
@@ -82,10 +86,12 @@ public class Player : MonoBehaviour {
 
         if(diff > 0)
         {
+            Vector3 scale = side_sprites.Count > 0 ? side_sprites[0].transform.localScale : line_prefab.transform.localScale;
             for(int i = 0; i < diff; ++i)
             {
                 GameObject new_side = Instantiate(line_prefab);
                 new_side.transform.parent = gameObject.transform;
+                new_side.transform.localScale = scale;
                 side_sprites.Add(new_side);
             }
         }
@@ -142,6 +148,7 @@ public class Player : MonoBehaviour {
         if(num_sides < max_sides)
         {
             num_sides++;
+            gameObject.transform.localScale *= 1 / shrink_rate;
             generateGeometry();
         }       
     }
@@ -156,6 +163,7 @@ public class Player : MonoBehaviour {
         }
         else
         {
+            gameObject.transform.localScale *= shrink_rate;
             generateGeometry();
         }
     }
