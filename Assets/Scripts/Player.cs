@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class Player : MonoBehaviour {
     public GameObject line_prefab;
+    public GameObject bullet_prefab;
     public Color color;
     public int max_sides;
     public float move_speed;
@@ -22,7 +23,6 @@ public class Player : MonoBehaviour {
         side_sprites = new List<GameObject>();
         num_sides = 3;
         generateGeometry();
-        //player_number = 1;
         player_controls = PlayerControls.getPlayerControls()[player_number];
     }
 	
@@ -51,6 +51,15 @@ public class Player : MonoBehaviour {
             hor_factor++;
         }
 
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            grow();
+        }
+        else if (Input.GetKeyDown(KeyCode.H))
+        {
+            shrink();
+        }
+
         Rigidbody2D rb = gameObject.GetComponent<Rigidbody2D>();
         Vector2 vel = new Vector2((float)hor_factor * move_speed, (float)vert_factor * move_speed);
 
@@ -61,23 +70,48 @@ public class Player : MonoBehaviour {
         
 
         rb.velocity = vel;
+
+        processShootingLogic();
 	}
 
     private void generateGeometry()
     {
+        Debug.Assert(num_sides > 2);
+        int curr_geometry = side_sprites.Count;
+        int diff = num_sides - curr_geometry;
+
+        if(diff > 0)
+        {
+            for(int i = 0; i < diff; ++i)
+            {
+                GameObject new_side = Instantiate(line_prefab);
+                new_side.transform.parent = gameObject.transform;
+                side_sprites.Add(new_side);
+            }
+        }
+        else if(diff < 0)
+        {
+            int to_del = Mathf.Abs(diff);
+            for(int i = 0; i < to_del; ++i)
+            {
+                Destroy(side_sprites[side_sprites.Count - 1]);
+                side_sprites.RemoveAt(side_sprites.Count - 1);
+            }
+        }
+
         float apex_angle = 2 * Mathf.PI / (float)num_sides;
         float opposite = side_length / 2;
         float radius = opposite / Mathf.Tan(apex_angle / 2);
 
-        for(int i = 0; i < num_sides; ++i)
+        int idx = 0;
+        foreach(GameObject side in side_sprites)
         {
-            GameObject new_side = Instantiate(line_prefab);
-            new_side.transform.parent = gameObject.transform;
-            new_side.transform.localPosition = new Vector3(Mathf.Sin(apex_angle * i) * radius, Mathf.Cos(apex_angle * i) * radius, 0);
-            float rot_angle = apex_angle / Mathf.PI * 180f * i;
-            new_side.transform.Rotate(new Vector3(0, 0, 1), -rot_angle);
+            side.transform.localPosition = new Vector3(Mathf.Sin(apex_angle * idx) * radius, Mathf.Cos(apex_angle * idx) * radius, 0);
+            float rot_angle = apex_angle / Mathf.PI * 180f * idx;
+            side.transform.rotation = gameObject.transform.rotation;
+            side.transform.Rotate(new Vector3(0, 0, 1), -rot_angle);
 
-            side_sprites.Add(new_side);
+            idx++;
         }
     }
     
@@ -101,5 +135,33 @@ public class Player : MonoBehaviour {
         }
 
         gameObject.transform.Rotate(new Vector3(0, 0, 1), rot_amount);
+    }
+
+    public void grow()
+    {
+        if(num_sides < max_sides)
+        {
+            num_sides++;
+            generateGeometry();
+        }       
+    }
+
+    public void shrink()
+    {
+        num_sides--;
+
+        if (num_sides < 3)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            generateGeometry();
+        }
+    }
+
+    private void processShootingLogic()
+    {
+
     }
 }
