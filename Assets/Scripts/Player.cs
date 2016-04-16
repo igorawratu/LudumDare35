@@ -10,6 +10,7 @@ public class Player : MonoBehaviour {
     public float move_speed;
     public float rot_speed;
     public float shrink_rate;
+    public float shot_speed;
 
     private int num_sides;
     private List<GameObject> side_sprites;
@@ -170,6 +171,37 @@ public class Player : MonoBehaviour {
 
     private void processShootingLogic()
     {
+        if (!Input.GetKeyDown(player_controls.shoot) || num_sides < 4)
+        {
+            return;
+        }
 
+        GameObject bullet = Instantiate(bullet_prefab);
+        Vector3 dir = gameObject.transform.up;
+        dir.Normalize();
+
+        float rotation = Vector3.Angle(dir, bullet.transform.right);
+
+        Vector3 cross = Vector3.Cross(dir, bullet.transform.right);
+        if (cross.z > 0)
+        {
+            rotation *= -1;
+        }
+
+        bullet.transform.Rotate(new Vector3(0, 0, 1), rotation);        
+
+        dir *= shot_speed;
+        Bullet bullet_script = bullet.GetComponent<Bullet>();
+        bullet_script.setVelocity(dir);
+        bullet.transform.position = gameObject.transform.position;
+        Collider2D bullet_collider = bullet.GetComponent<Collider2D>();
+
+        foreach(GameObject side in side_sprites)
+        {
+            Collider2D side_collider = side.GetComponent<Collider2D>();
+            Physics2D.IgnoreCollision(side_collider, bullet_collider);
+        }
+
+        shrink();
     }
 }

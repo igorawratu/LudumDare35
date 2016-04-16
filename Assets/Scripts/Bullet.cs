@@ -2,18 +2,27 @@
 using System.Collections;
 
 public class Bullet : MonoBehaviour {
-    public int bullet_side;
-    public float min_rot_speed;
-    public float max_rot_speed;
+    // Use this for initialization
 
-    private float curr_rot_speed;
-	// Use this for initialization
+    private Vector2 velocity = Vector2.zero;
 	void Start () {
 	    
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+        Vector2 diff = velocity * Time.deltaTime;
+        gameObject.transform.position += new Vector3(diff.x, diff.y, 0);
 	}
+
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        //play some animation here
+        Destroy(gameObject);
+    }
+
+    public void setVelocity(Vector2 v)
+    {
+        velocity = v;
+    }
 }
