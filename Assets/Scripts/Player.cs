@@ -93,6 +93,7 @@ public class Player : MonoBehaviour {
                 GameObject new_side = Instantiate(line_prefab);
                 new_side.transform.parent = gameObject.transform;
                 new_side.transform.localScale = scale;
+                new_side.GetComponent<SpriteRenderer>().color = color;
                 side_sprites.Add(new_side);
             }
         }
@@ -195,6 +196,7 @@ public class Player : MonoBehaviour {
         bullet_script.setVelocity(dir);
         bullet.transform.position = gameObject.transform.position;
         Collider2D bullet_collider = bullet.GetComponent<Collider2D>();
+        bullet.GetComponent<SpriteRenderer>().color = color;
 
         foreach(GameObject side in side_sprites)
         {
@@ -203,5 +205,14 @@ public class Player : MonoBehaviour {
         }
 
         shrink();
+    }
+
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        GameObject collided_object = collider.gameObject;
+        if(collided_object.layer == LayerMask.NameToLayer("Bullet"))
+        {
+            shrink();
+        }
     }
 }
