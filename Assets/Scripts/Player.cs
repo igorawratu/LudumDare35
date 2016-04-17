@@ -16,6 +16,11 @@ public class Player : MonoBehaviour {
     public float slow_rate;
     public float rot_slow_rate;
 
+    public float powerup_speed_inc;
+    public float powerup_rotspeed_inc;
+
+    public bool lock_input = false;
+
     private int num_sides;
     private List<GameObject> side_sprites;
 
@@ -24,6 +29,7 @@ public class Player : MonoBehaviour {
     public int player_number;
     private Controls player_controls;
     private GenerateThings manager;
+    private int damage = 1;
 
 	// Use this for initialization
 	void Start () {
@@ -31,57 +37,66 @@ public class Player : MonoBehaviour {
         num_sides = 3;
         generateGeometry();
         player_controls = PlayerControls.getPlayerControls()[player_number];
+        GameObject center = gameObject.transform.FindChild("player_center").gameObject;
+        center.GetComponent<SpriteRenderer>().color = color;
     }
 	
 	// Update is called once per frame
 	void Update () {
-        int vert_factor = 0;
-        int hor_factor = 0;
-
-        if (Input.GetKey(player_controls.up))
+        if (!lock_input)
         {
-            vert_factor++;
-        }
+            int vert_factor = 0;
+            int hor_factor = 0;
 
-        if (Input.GetKey(player_controls.down))
+            if (Input.GetKey(player_controls.up))
+            {
+                vert_factor++;
+            }
+
+            if (Input.GetKey(player_controls.down))
+            {
+                vert_factor--;
+            }
+
+            if (Input.GetKey(player_controls.left))
+            {
+                hor_factor--;
+            }
+
+            if (Input.GetKey(player_controls.right))
+            {
+                hor_factor++;
+            }
+
+            //for testing purposes only----
+            if (Input.GetKeyDown(KeyCode.G))
+            {
+                grow();
+            }
+            else if (Input.GetKeyDown(KeyCode.H))
+            {
+                shrink();
+            }
+            //until here
+
+            Rigidbody2D rb = gameObject.GetComponent<Rigidbody2D>();
+            Vector2 vel = new Vector2((float)hor_factor * move_speed, (float)vert_factor * move_speed);
+            rb.angularVelocity = 0f;
+
+            if (vel != Vector2.zero)
+            {
+                rotatePlayer(vel);
+            }
+
+
+            rb.velocity = vel;
+
+            processShootingLogic();
+        }
+        else
         {
-            vert_factor--;
+            gameObject.transform.Rotate(new Vector3(0, 0, 1), Time.deltaTime * 360f / 2f);
         }
-
-        if (Input.GetKey(player_controls.left))
-        {
-            hor_factor--;
-        }
-
-        if (Input.GetKey(player_controls.right))
-        {
-            hor_factor++;
-        }
-
-        //for testing purposes only----
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            grow();
-        }
-        else if (Input.GetKeyDown(KeyCode.H))
-        {
-            shrink();
-        }
-        //until here
-
-        Rigidbody2D rb = gameObject.GetComponent<Rigidbody2D>();
-        Vector2 vel = new Vector2((float)hor_factor * move_speed, (float)vert_factor * move_speed);
-        rb.angularVelocity = 0f;
-
-        if(vel != Vector2.zero)
-        {
-            rotatePlayer(vel);
-        }
-        
-
-        rb.velocity = vel;
-
-        processShootingLogic();
 	}
 
     private void generateGeometry()
@@ -208,6 +223,7 @@ public class Player : MonoBehaviour {
         Bullet bullet_script = bullet.GetComponent<Bullet>();
         bullet_script.setVelocity(dir);
         bullet.transform.position = gameObject.transform.position;
+        bullet_script.setDamage(damage);
         Collider2D bullet_collider = bullet.GetComponent<Collider2D>();
         bullet.GetComponent<SpriteRenderer>().color = color;
 
@@ -225,12 +241,32 @@ public class Player : MonoBehaviour {
         GameObject collided_object = collider.gameObject;
         if(collided_object.layer == LayerMask.NameToLayer("Bullet"))
         {
-            shrink();
+            int damage = collided_object.GetComponent<Bullet>().getDamage();
+
+            for (int i = 0; i < damage; ++i)
+            {
+                shrink();
+            }
         }
     }
 
     public void setManager(GenerateThings m)
     {
         manager = m;
+    }
+
+    public void increaseSpeed()
+    {
+        move_speed += powerup_speed_inc;
+    }
+
+    public void increaseRotSpeed()
+    {
+        rot_speed += powerup_rotspeed_inc;
+    }
+
+    public void increaseDamage()
+    {
+        damage++;
     }
 }

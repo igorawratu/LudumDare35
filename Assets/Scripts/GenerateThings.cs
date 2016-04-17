@@ -6,11 +6,13 @@ using UnityEngine.UI;
 public class GenerateThings : MonoBehaviour {
     public GameObject obstacle_prefab;
     public GameObject quadup_prefab;
+    public GameObject powerup_prefab;
     public GameObject top_prefab;
     public GameObject bottom_prefab;
     public GameObject left_prefab;
     public GameObject right_prefab;
     public float quadup_time_threshold;
+    public float powerup_time_threshold;
 
     public GameObject player_1_prefab;
     public GameObject player_2_prefab;
@@ -31,6 +33,8 @@ public class GenerateThings : MonoBehaviour {
     private float quadup_timer;
     private bool freeze = false;
 
+    private float powerup_timer;
+
 	// Use this for initialization
 	void Start () {
         free_spaces = new List<int>();
@@ -50,6 +54,7 @@ public class GenerateThings : MonoBehaviour {
         generatePlayers();
 
         quadup_timer = 0f;
+        powerup_timer = 0f;
     }
 	
 	// Update is called once per frame
@@ -57,6 +62,7 @@ public class GenerateThings : MonoBehaviour {
         if (!freeze)
         {
             generateQuadUps();
+            generatePowerups();
             drawDebugGridlines();
         }
     }
@@ -248,6 +254,30 @@ public class GenerateThings : MonoBehaviour {
 
     }
 
+    private void generatePowerups()
+    {
+        powerup_timer += Time.deltaTime;
+
+        if (powerup_timer >= powerup_time_threshold)
+        {
+            powerup_timer = 0f;
+            if (free_spaces.Count > 0)
+            {
+                int idx = Mathf.Min((int)(Random.value * free_spaces.Count), free_spaces.Count - 1);
+                int coord = free_spaces[idx];
+                free_spaces.RemoveAt(idx);
+                GameObject powerup = Instantiate(powerup_prefab);
+                Powerup pu = powerup.GetComponent<Powerup>();
+                pu.setCoord(coord, this);
+                int x = coord % width;
+                int y = coord / width;
+                Vector2 pos = findMidpoint(x, y, x, y);
+                powerup.transform.position = new Vector3(pos.x, pos.y);
+            }
+        }
+
+    }
+
     private void generatePlayers()
     {
         Vector2 p1_pos = findMidpoint(0, 0, 0, 0);
@@ -283,7 +313,7 @@ public class GenerateThings : MonoBehaviour {
 
     IEnumerator end()
     {
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(3);
         Application.LoadLevel("start");
     }
 }

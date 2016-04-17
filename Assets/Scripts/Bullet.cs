@@ -6,6 +6,7 @@ public class Bullet : MonoBehaviour {
     public GameObject effect;
 
     private Vector2 velocity = Vector2.zero;
+    private int damage;
 	void Start () {
 	    
 	}
@@ -28,5 +29,15 @@ public class Bullet : MonoBehaviour {
     public void setVelocity(Vector2 v)
     {
         velocity = v;
+    }
+
+    public void setDamage(int dmg)
+    {
+        damage = dmg;
+    }
+
+    public int getDamage()
+    {
+        return damage;
     }
 }
