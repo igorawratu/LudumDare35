@@ -65,7 +65,7 @@ public class GenerateThings : MonoBehaviour {
         {
             generateQuadUps();
             generatePowerups();
-            drawDebugGridlines();
+            //drawDebugGridlines();
         }
     }
 

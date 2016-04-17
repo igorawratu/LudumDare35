@@ -4,6 +4,7 @@ using System.Collections;
 public class Bullet : MonoBehaviour {
     // Use this for initialization
     public GameObject effect;
+    public GameObject owner;
 
     private Vector2 velocity = Vector2.zero;
     private int damage;
@@ -39,5 +40,15 @@ public class Bullet : MonoBehaviour {
     public int getDamage()
     {
         return damage;
+    }
+
+    public void setOwner(GameObject p)
+    {
+        owner = p;
+    }
+
+    public GameObject getOwner()
+    {
+        return owner;
     }
 }

@@ -71,17 +71,6 @@ public class Player : MonoBehaviour {
                 hor_factor++;
             }
 
-            //for testing purposes only----
-            if (Input.GetKeyDown(KeyCode.G))
-            {
-                grow();
-            }
-            else if (Input.GetKeyDown(KeyCode.H))
-            {
-                shrink();
-            }
-            //until here
-
             Rigidbody2D rb = gameObject.GetComponent<Rigidbody2D>();
             Vector2 vel = new Vector2((float)hor_factor * move_speed, (float)vert_factor * move_speed);
             rb.angularVelocity = 0f;
@@ -184,6 +173,11 @@ public class Player : MonoBehaviour {
 
     public void shrink()
     {
+        if(num_sides < 3)
+        {
+            return;
+        }
+
         num_sides--;
 
         if (num_sides < 3)
@@ -232,6 +226,7 @@ public class Player : MonoBehaviour {
         bullet.transform.position = gameObject.transform.position;
         bullet.transform.localScale *= curr_bullet_scale;
         bullet_script.setDamage(damage);
+        bullet_script.setOwner(gameObject);
         Collider2D bullet_collider = bullet.GetComponent<Collider2D>();
         bullet.GetComponent<SpriteRenderer>().color = color;
 
@@ -253,7 +248,11 @@ public class Player : MonoBehaviour {
 
             for (int i = 0; i < damage; ++i)
             {
-                shrink();
+                GameObject owner = collided_object.GetComponent<Bullet>().getOwner();
+                if (owner != gameObject)
+                {
+                    shrink();
+                }
             }
         }
     }
