@@ -13,6 +13,7 @@ public class GenerateThings : MonoBehaviour {
     public GameObject right_prefab;
     public float quadup_time_threshold;
     public float powerup_time_threshold;
+    public float jitter_ratio;
 
     public GameObject player_1_prefab;
     public GameObject player_2_prefab;
@@ -20,7 +21,8 @@ public class GenerateThings : MonoBehaviour {
     public float obstacle_gen_prob;
     public int max_obstacle_length;
 
-    public GameObject winner_text;
+    public GameObject p1wins;
+    public GameObject p2wins;
 
     private const int width = 16;
     private const int height = 10;
@@ -86,7 +88,6 @@ public class GenerateThings : MonoBehaviour {
                 int coord = y * width + x;
                 if (emptySurroundings(coord) && Random.value < obstacle_gen_prob)
                 {
-                    Debug.Log("hello");
                     bool horizontal = Random.value < 0.5f;
 
                     int max_length = findMaxLength(horizontal, coord);
@@ -97,6 +98,7 @@ public class GenerateThings : MonoBehaviour {
                     int end_y = !horizontal ? y + chosen_length - 1: y;
 
                     Vector2 midpoint = findMidpoint(x, y, end_x, end_y);
+
                     GameObject new_obstacle = Instantiate(obstacle_prefab);
                     new_obstacle.transform.localScale = new Vector3(new_obstacle.transform.localScale.x * chosen_length, new_obstacle.transform.localScale.y, new_obstacle.transform.localScale.z);
                     new_obstacle.transform.position = new Vector3(midpoint.x, midpoint.y);
@@ -157,10 +159,11 @@ public class GenerateThings : MonoBehaviour {
 
     private Vector2 findMidpoint(int x, int y, int endx, int endy)
     {
-        float cell_dim = 1f / (float)width * hor_extent * 2;
+        float cell_dim_x = 1f / (float)width * hor_extent * 2;
+        float cell_dim_y = 1f / (float)height * vert_extent * 2;
 
-        Vector2 start = new Vector2((float)x * cell_dim - hor_extent, (float)y * -cell_dim + vert_extent);
-        Vector2 end = new Vector2((float)(endx + 1) * cell_dim - hor_extent, (float)(endy + 1) * -cell_dim + vert_extent);
+        Vector2 start = new Vector2((float)x * cell_dim_x - hor_extent, (float)y * -cell_dim_y + vert_extent);
+        Vector2 end = new Vector2((float)(endx + 1) * cell_dim_x - hor_extent, (float)(endy + 1) * -cell_dim_y + vert_extent);
 
         Vector2 midpoint = (start + end) / 2;
 
@@ -242,13 +245,23 @@ public class GenerateThings : MonoBehaviour {
                 int idx = Mathf.Min((int)(Random.value * free_spaces.Count), free_spaces.Count - 1);
                 int coord = free_spaces[idx];
                 free_spaces.RemoveAt(idx);
-                GameObject quadup = Instantiate(quadup_prefab);
+                GameObject quadupp = Instantiate(quadup_prefab);
+                GameObject quadup = quadupp.transform.FindChild("QuadUp").gameObject;
                 QuadUp qu = quadup.GetComponent<QuadUp>();
                 qu.setCoord(coord, this);
                 int x = coord % width;
                 int y = coord / width;
                 Vector2 pos = findMidpoint(x, y, x, y);
-                quadup.transform.position = new Vector3(pos.x, pos.y);
+
+                float cell_dim_x = 1f / (float)width * hor_extent * 2;
+                float cell_dim_y = 1f / (float)height * vert_extent * 2;
+
+                float x_jitter = (Random.value - 0.5f) * jitter_ratio * cell_dim_x;
+                float y_jitter = (Random.value - 0.5f) * jitter_ratio * cell_dim_y;
+
+                pos += new Vector2(x_jitter, y_jitter);
+
+                quadupp.transform.position = new Vector3(pos.x, pos.y);
             }
         }
 
@@ -266,13 +279,23 @@ public class GenerateThings : MonoBehaviour {
                 int idx = Mathf.Min((int)(Random.value * free_spaces.Count), free_spaces.Count - 1);
                 int coord = free_spaces[idx];
                 free_spaces.RemoveAt(idx);
-                GameObject powerup = Instantiate(powerup_prefab);
+                GameObject powerupp = Instantiate(powerup_prefab);
+                GameObject powerup = powerupp.transform.FindChild("Powerup").gameObject;
                 Powerup pu = powerup.GetComponent<Powerup>();
                 pu.setCoord(coord, this);
                 int x = coord % width;
                 int y = coord / width;
                 Vector2 pos = findMidpoint(x, y, x, y);
-                powerup.transform.position = new Vector3(pos.x, pos.y);
+
+                float cell_dim_x = 1f / (float)width * hor_extent * 2;
+                float cell_dim_y = 1f / (float)height * vert_extent * 2;
+
+                float x_jitter = (Random.value - 0.5f) * jitter_ratio * cell_dim_x;
+                float y_jitter = (Random.value - 0.5f) * jitter_ratio * cell_dim_y;
+
+                pos += new Vector2(x_jitter, y_jitter);
+
+                powerupp.transform.position = new Vector3(pos.x, pos.y);
             }
         }
 
@@ -291,7 +314,7 @@ public class GenerateThings : MonoBehaviour {
         GameObject p2 = Instantiate(player_2_prefab);
         p2.transform.position = new Vector3(p2_pos.x, p2_pos.y);
         float p2_rot = Vector2.Angle(-p2_pos, p2.transform.up);
-        p1.transform.Rotate(new Vector3(0, 0, 1), p2_rot);
+        p1.transform.Rotate(new Vector3(0, 0, 1), -p2_rot);
 
         p1.GetComponent<Player>().setManager(this);
         p2.GetComponent<Player>().setManager(this);
@@ -302,9 +325,8 @@ public class GenerateThings : MonoBehaviour {
         int winner = player == 1 ? 2 : 1;
         GameObject winner_obj = winner == 1 ? player_1_prefab : player_2_prefab;
 
-        Text finish_text = winner_text.GetComponent<Text>();
-        finish_text.color = winner_obj.GetComponent<Player>().color;
-        finish_text.text = "Player " + winner + " Wins!";
+        GameObject winner_text = winner == 1 ? Instantiate(p1wins) : Instantiate(p2wins);
+        winner_text.GetComponent<SpriteRenderer>().color = winner_obj.GetComponent<Player>().color;
 
         freeze = true;
 

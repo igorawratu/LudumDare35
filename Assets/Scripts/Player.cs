@@ -30,6 +30,7 @@ public class Player : MonoBehaviour {
     private Controls player_controls;
     private GenerateThings manager;
     private int damage = 1;
+    private GameObject player_center;
 
 	// Use this for initialization
 	void Start () {
@@ -37,8 +38,8 @@ public class Player : MonoBehaviour {
         num_sides = 3;
         generateGeometry();
         player_controls = PlayerControls.getPlayerControls()[player_number];
-        GameObject center = gameObject.transform.FindChild("player_center").gameObject;
-        center.GetComponent<SpriteRenderer>().color = color;
+        player_center = gameObject.transform.FindChild("player_center").gameObject;
+        player_center.GetComponent<SpriteRenderer>().color = color;
     }
 	
 	// Update is called once per frame
@@ -170,7 +171,9 @@ public class Player : MonoBehaviour {
         if(num_sides < max_sides)
         {
             num_sides++;
+            player_center.transform.parent = null;
             gameObject.transform.localScale *= 1 / shrink_rate;
+            player_center.transform.parent = gameObject.transform;
             move_speed *= 1 / slow_rate;
             rot_speed *= 1 / rot_slow_rate;
             generateGeometry();
@@ -191,7 +194,9 @@ public class Player : MonoBehaviour {
         }
         else
         {
+            player_center.transform.parent = null;
             gameObject.transform.localScale *= shrink_rate;
+            player_center.transform.parent = gameObject.transform;
             move_speed *= slow_rate;
             rot_speed *= rot_slow_rate;
             generateGeometry();
