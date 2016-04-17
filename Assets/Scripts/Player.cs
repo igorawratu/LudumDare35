@@ -5,12 +5,16 @@ using System.Collections.Generic;
 public class Player : MonoBehaviour {
     public GameObject line_prefab;
     public GameObject bullet_prefab;
+    public GameObject death_effect_prefab;
+
     public Color color;
     public int max_sides;
     public float move_speed;
     public float rot_speed;
     public float shrink_rate;
     public float shot_speed;
+    public float slow_rate;
+    public float rot_slow_rate;
 
     private int num_sides;
     private List<GameObject> side_sprites;
@@ -19,6 +23,7 @@ public class Player : MonoBehaviour {
 
     public int player_number;
     private Controls player_controls;
+    private GenerateThings manager;
 
 	// Use this for initialization
 	void Start () {
@@ -151,6 +156,8 @@ public class Player : MonoBehaviour {
         {
             num_sides++;
             gameObject.transform.localScale *= 1 / shrink_rate;
+            move_speed *= 1 / slow_rate;
+            rot_speed *= 1 / rot_slow_rate;
             generateGeometry();
         }       
     }
@@ -161,11 +168,17 @@ public class Player : MonoBehaviour {
 
         if (num_sides < 3)
         {
+            manager.playerDied(player_number);
+            GameObject effect = Instantiate(death_effect_prefab);
+            effect.transform.position = gameObject.transform.position;
+            effect.GetComponent<ParticleSystem>().startColor = color;
             Destroy(gameObject);
         }
         else
         {
             gameObject.transform.localScale *= shrink_rate;
+            move_speed *= slow_rate;
+            rot_speed *= rot_slow_rate;
             generateGeometry();
         }
     }
@@ -214,5 +227,10 @@ public class Player : MonoBehaviour {
         {
             shrink();
         }
+    }
+
+    public void setManager(GenerateThings m)
+    {
+        manager = m;
     }
 }

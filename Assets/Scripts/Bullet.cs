@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Bullet : MonoBehaviour {
     // Use this for initialization
+    public GameObject effect;
 
     private Vector2 velocity = Vector2.zero;
 	void Start () {
@@ -18,6 +19,9 @@ public class Bullet : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D collider)
     {
         //play some animation here
+        GameObject e = Instantiate(effect);
+        e.transform.position = gameObject.transform.position;
+        e.GetComponent<ParticleSystem>().startColor = gameObject.GetComponent<SpriteRenderer>().color;
         Destroy(gameObject);
     }
 
