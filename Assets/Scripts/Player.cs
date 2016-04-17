@@ -72,7 +72,9 @@ public class Player : MonoBehaviour {
             }
 
             Rigidbody2D rb = gameObject.GetComponent<Rigidbody2D>();
-            Vector2 vel = new Vector2((float)hor_factor * move_speed, (float)vert_factor * move_speed);
+            Vector2 vel = new Vector2((float)hor_factor, (float)vert_factor);
+            vel.Normalize();
+            vel *= move_speed;
             rb.angularVelocity = 0f;
 
             if (vel != Vector2.zero)
