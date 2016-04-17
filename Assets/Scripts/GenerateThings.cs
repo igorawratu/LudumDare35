@@ -335,7 +335,7 @@ public class GenerateThings : MonoBehaviour {
 
     IEnumerator end()
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(4f);
         Application.LoadLevel("start");
     }
 }

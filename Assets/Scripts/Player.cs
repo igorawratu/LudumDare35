@@ -18,6 +18,7 @@ public class Player : MonoBehaviour {
 
     public float powerup_speed_inc;
     public float powerup_rotspeed_inc;
+    public float bullet_scale_inc;
 
     public bool lock_input = false;
 
@@ -31,6 +32,7 @@ public class Player : MonoBehaviour {
     private GenerateThings manager;
     private int damage = 1;
     private GameObject player_center;
+    private float curr_bullet_scale = 1f;
 
 	// Use this for initialization
 	void Start () {
@@ -228,6 +230,7 @@ public class Player : MonoBehaviour {
         Bullet bullet_script = bullet.GetComponent<Bullet>();
         bullet_script.setVelocity(dir);
         bullet.transform.position = gameObject.transform.position;
+        bullet.transform.localScale *= curr_bullet_scale;
         bullet_script.setDamage(damage);
         Collider2D bullet_collider = bullet.GetComponent<Collider2D>();
         bullet.GetComponent<SpriteRenderer>().color = color;
@@ -273,5 +276,6 @@ public class Player : MonoBehaviour {
     public void increaseDamage()
     {
         damage++;
+        curr_bullet_scale += bullet_scale_inc;
     }
 }

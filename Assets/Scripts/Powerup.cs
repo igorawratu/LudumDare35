@@ -15,6 +15,8 @@ public class Powerup : MonoBehaviour {
     public bool lock_type;
     public PowerupType preset_type;
 
+    public GameObject sound;
+
     private GenerateThings generator;
     private int coord;
     private PowerupType type;
@@ -90,6 +92,8 @@ public class Powerup : MonoBehaviour {
         }
 
         generator.freeSpace(coord);
+
+        Instantiate(sound);
         Destroy(gameObject);
     }
 

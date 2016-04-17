@@ -2,6 +2,8 @@
 using System.Collections;
 
 public class QuadUp : MonoBehaviour {
+    public GameObject sound;
+
     private int coord;
     private GenerateThings generator;
 	// Use this for initialization
@@ -21,6 +23,7 @@ public class QuadUp : MonoBehaviour {
         GameObject player = player_rect.transform.parent.gameObject;
         player.GetComponent<Player>().grow();
         generator.freeSpace(coord);
+        Instantiate(sound);
         Destroy(gameObject);
     }
 

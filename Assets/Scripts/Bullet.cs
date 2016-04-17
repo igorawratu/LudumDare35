@@ -8,8 +8,8 @@ public class Bullet : MonoBehaviour {
     private Vector2 velocity = Vector2.zero;
     private int damage;
 	void Start () {
-	    
-	}
+        gameObject.GetComponent<AudioSource>().Play();
+    }
 	
 	// Update is called once per frame
 	void Update () {

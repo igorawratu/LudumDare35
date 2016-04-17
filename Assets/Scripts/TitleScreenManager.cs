@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class TitleScreenManager : MonoBehaviour {
+    public GameObject select_effect;
+    public GameObject deselect_effect;
+
     private GameObject player1;
     private GameObject player2;
     private GameObject p1title;
@@ -64,12 +67,28 @@ public class TitleScreenManager : MonoBehaviour {
         if (Input.GetKeyDown(player1_controls.shoot))
         {
             p1_ready = !p1_ready;
+            if (p1_ready)
+            {
+                Instantiate(select_effect);
+            }
+            else
+            {
+                Instantiate(deselect_effect);
+            }
             player1.SetActive(p1_ready);
         }
 
         if (Input.GetKeyDown(player2_controls.shoot))
         {
             p2_ready = !p2_ready;
+            if (p2_ready)
+            {
+                Instantiate(select_effect);
+            }
+            else
+            {
+                Instantiate(deselect_effect);
+            }
             player2.SetActive(p2_ready);
         }
 
